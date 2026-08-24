@@ -24,6 +24,7 @@ skills can bundle supporting instructions and references.
 
 | Command | Purpose |
 | --- | --- |
+| `/import-resume` | Convert a resume PDF into an editable Markdown source file |
 | `/refine-personal-statement` | Teach the building blocks, gather evidence, then collaboratively refine the summary |
 | `/coach-experience-writing` | Practise one or two Experience bullets interactively |
 | `/refine-experience` | Diagnose Experience bullets, elicit evidence, and refine after user input |
@@ -35,6 +36,34 @@ skills can bundle supporting instructions and references.
 | `/render-resume` | Produce print-ready HTML/CSS using a selected layout system |
 | `/write-cover-letter` | Draft a targeted cover letter grounded in resume evidence |
 | `/shorten-text` | Reduce content to a requested length while preserving meaning |
+
+## Starting from a PDF
+
+Most people arrive with a PDF rather than Markdown. `/import-resume` converts it
+into an editable source file that every other command can read:
+
+```text
+/import-resume @workspace/input/jane-cv.pdf
+```
+
+or type
+```text
+/import-resume 
+```
+then drag the file in.
+
+The result is written to `workspace/resumes/jane-cv.md`. The import preserves the
+candidate's exact wording — it converts format, not prose — and flags anything it
+could not read cleanly with `[VERIFY: ...]` markers for the user to check against
+the original.
+
+Claude reads the PDF itself. There is nothing to install — no poppler, no Python,
+no conversion tool — and scanned or image-only PDFs import the same way as ones
+with a text layer.
+
+Because the text is transcribed rather than copied, proofread the `[VERIFY: ...]`
+markers against the original before using the file. Dates, metrics, and contact
+details are the places worth a second look.
 
 Example:
 
@@ -79,15 +108,16 @@ provided, the command asks for the minimum information required.
 
 ## Recommended learning workflow
 
-1. `/audit-resume`
-2. `/coach-experience-writing` on one or two representative bullets
-3. `/refine-personal-statement`
-4. `/tailor-to-jd`
-5. `/refine-full-resume`
-6. `/restructure-resume`
-7. `/design-resume-layout`
-8. `/render-resume`
-9. Proofread the exported PDF before submission
+1. `/import-resume` if the starting point is a PDF
+2. `/audit-resume`
+3. `/coach-experience-writing` on one or two representative bullets
+4. `/refine-personal-statement`
+5. `/tailor-to-jd`
+6. `/refine-full-resume`
+7. `/restructure-resume`
+8. `/design-resume-layout`
+9. `/render-resume`
+10. Proofread the exported PDF before submission
 
 For an urgent application, the user can explicitly request `direct rewrite` or
 `text only`. The no-fabrication rules still apply.
@@ -121,6 +151,7 @@ references/           Detailed checklists and layout recipes
 templates/            Starter resume and HTML/CSS templates
 examples/             Before-and-after examples
 scripts/              Project validation
+workspace/resumes/    Imported Markdown resumes (git-ignored)
 ```
 
 Run `bash scripts/validate.sh` after editing the project.

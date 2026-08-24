@@ -95,6 +95,9 @@ and appropriate for the target market.
 
 - Keep source resumes in `workspace/input/` and generated work in
   `workspace/output/` when those folders exist.
+- Resumes converted from PDF belong in `workspace/resumes/`. Converting a PDF is a
+  format change only: preserve the candidate's wording exactly and mark anything the
+  extraction could not resolve as `[VERIFY: ...]` rather than guessing.
 - Do not overwrite the only copy of a candidate's resume. Create a clearly named
   refined version unless the user explicitly asks for in-place editing.
 - Markdown is the preferred editable source format.

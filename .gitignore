@@ -1,4 +1,6 @@
 workspace/output/*.pdf
 workspace/output/*.html
+workspace/resumes/*.pdf
+workspace/resumes/*.md
 .DS_Store
 
