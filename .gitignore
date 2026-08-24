@@ -1,0 +1,4 @@
+workspace/output/*.pdf
+workspace/output/*.html
+.DS_Store
+
