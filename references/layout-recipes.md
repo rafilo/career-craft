@@ -37,24 +37,73 @@ A safe warm accent example is `#A87818` for text/rules with a light tint such as
 Best for: direct human review where compact scanning matters. Maintain a separate
 ATS Clean version if parsing risk is unknown.
 
-- Grid: 31–34% sidebar, remaining width main content
 - Margins: 12–15 mm
-- Sidebar: contact, skills, education, certifications
+- Sidebar: skills, education, certifications
+- Header: name, target role, and contact details, full width above both columns
 - Main: summary and professional experience
 - Body: at least 9.5 pt
-- Gap: 7–10 mm
-- Reading order in HTML: header, summary, experience, then supporting sections where
-  possible; CSS Grid controls visual placement
 - Never split one experience entry across columns
 - Avoid essential facts encoded only through position or colour
+
+### Fixed geometry, not percentages
+
+Every width is a millimetre value. A4 is 210 mm; at 14 mm padding the content box
+is 182 mm, split 58 mm sidebar + 8 mm gap + 116 mm main column.
+
+Percentages resolve against the viewport on screen and against the page box in
+print, so a percentage-width sidebar renders at one size in the browser and another
+in the PDF. The candidate proofreads on screen and sends the PDF, so the two must be
+identical.
+
+### One explicit page box per page
+
+Wrap each page in a `.page` element with `width: 210mm; height: 297mm; padding:
+14mm`, set `@page { size: A4; margin: 0 }`, and put the break on the element
+(`break-after: page`).
+
+Confine the two-column split to page one. Grid and float layouts both fail at the
+page boundary — a grid row spans both tracks, so the sidebar follows the main column
+onto page two and paints an empty tinted block down the whole page. Inside a fixed
+page box the split never crosses a break, so neither failure can happen. Later pages
+are single column at the full 182 mm.
+
+Make page one a flex column: header at natural height, then the split with
+`flex: 1 1 auto`. The sidebar then stretches to the foot of the page by itself.
+Never hand-tune a `min-height` for this — it is a magic number that silently breaks
+when the header grows by a line.
+
+### The cost: verify the page fill
+
+Fixed page boxes do not reflow. Content exceeding 297 mm spills into the bottom
+margin and then past the page edge, and it does so **silently**: the page count does
+not change and a thumbnail looks fine.
+
+After any content edit, render to PDF and confirm the ink in each column stops
+before the bottom margin — 283 mm from the page top at 14 mm margins. Move material
+between `.page` elements by hand until it does. Real candidate content will not fall
+where the template's placeholder content did.
 
 ## Page-break rules
 
 - `break-inside: avoid` for role headings and short entries.
 - Do not force a long role to remain unbroken if it creates excessive blank space.
-- `break-after: avoid` for section headings.
-- Keep at least two bullets together where practical.
+- `break-after: avoid` for section headings, and on the date/location line so a
+  heading is never separated from the entry it introduces.
+- `break-before: avoid` on the bullet list for the same reason.
+- Keep at least two bullets together where practical: `orphans: 2; widows: 2` on
+  paragraphs and list items. Nothing else implements this rule.
 - Repeat no decorative banner on later pages.
+
+## Printing colour
+
+Any layout using a tint or fill must set `print-color-adjust: exact` (with the
+`-webkit-` prefix) on `html`. Chrome's Print → Save as PDF dialog has "Background
+graphics" switched **off** by default, so without this the fill silently prints
+blank and the layout loses the element it was built around. Headless Chrome forces
+backgrounds on, so this defect does not appear in an automated render — only for
+the user following the documented export steps.
+
+Prefer borders and rules over fills where the design allows: a border always prints.
 
 ## Content-density thresholds
 

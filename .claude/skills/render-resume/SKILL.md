@@ -18,13 +18,17 @@ Use the relevant starter in `templates/` as a structural reference.
 2. Generate a new `.html` file with embedded CSS and semantic headings/lists.
 3. Use `@page { size: A4; }`, print-safe margins, predictable page breaks, and no
    remote font dependency.
-4. Ensure contact details and dates remain selectable text.
-5. Use restrained colour with sufficient contrast; body text stays dark.
-6. Avoid essential content in page headers/footers, icons, pseudo-elements, tables,
+4. If the layout uses any tint or fill, set `print-color-adjust: exact` on `html`.
+   Chrome's print dialog disables background graphics by default, so the fill
+   otherwise prints blank for the user even though it renders on screen.
+5. Ensure contact details and dates remain selectable text.
+6. Use restrained colour with sufficient contrast; body text stays dark.
+7. Avoid essential content in page headers/footers, icons, pseudo-elements, tables,
    or background images.
-7. Check for overflow and obvious orphan headings. If browser/PDF rendering is
-   available, render and visually inspect before declaring completion.
-8. Keep the refined Markdown source as the editable source of truth.
+8. Check for overflow and obvious orphan headings. If browser/PDF rendering is
+   available, render and visually inspect before declaring completion. Check page
+   two, not only page one — the layout defects live at the page boundary.
+9. Keep the refined Markdown source as the editable source of truth.
 
 ## Deliverables
 

@@ -4,46 +4,262 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>Candidate Name — Resume</title>
+  <!--
+    Modern Two Column — compact sidebar plus main column, for direct human review.
+    Keep an ATS Clean version as well when the parsing pipeline is unknown.
+
+    GEOMETRY: every width is a fixed millimetre value, never a percentage. A4 is
+    210mm wide; at 14mm padding the content box is 182mm, split 58mm sidebar +
+    8mm gap + 116mm main. Percentages resolve against the viewport on screen and
+    the page box in print, so a percentage layout renders differently in the
+    browser than in the PDF. Fixed millimetres make the two identical.
+
+    HEIGHT: each page is an explicit 297mm box. The two-column split lives inside
+    page one only, so it never crosses a page break — which is what breaks grid and
+    float layouts. Page one is a flex column (header, then the split filling the
+    remaining height), so the sidebar stretches to the foot of the page on its own.
+    There is no magic min-height to tune. Overflow content goes in the next
+    .page element, single column at the full 182mm.
+
+    COST: pages do not flow automatically. When content changes you must move
+    material between .page elements yourself, and render to check. A .page whose
+    content exceeds 297mm will spill over the following page rather than being
+    clipped, so always look at the PDF before sending.
+
+    Markup contract shared by all three templates:
+      header > h1 + .target + .contact
+      .entry > h3 + .meta(span, span) + ul
+      .cap   > .cap-label + .cap-list
+  -->
   <style>
-    :root { --ink: #252525; --muted: #5b5b5b; --accent: #27475c; --tint: #edf2f5; }
-    @page { size: A4; margin: 13mm; }
+    :root {
+      --ink: #22252a;
+      --muted: #565c64;
+      --accent: #27475C;
+      --tint: #EDF2F5;
+      --rule: #c6d2da;
+
+      --page-w: 210mm;
+      --page-h: 297mm;
+      --page-pad: 14mm;
+      --side-w: 58mm;
+      --gap: 8mm;
+    }
+
+    /* Page margins live on .page padding, so the box model is explicit. */
+    @page { size: A4; margin: 0; }
+
     * { box-sizing: border-box; }
-    body { margin: 0; color: var(--ink); font-family: Arial, Helvetica, sans-serif;
-      font-size: 9.8pt; line-height: 1.35; }
-    header { margin-bottom: 5mm; border-bottom: 1.2pt solid var(--accent); padding-bottom: 3mm; }
-    h1 { margin: 0; font-size: 25pt; }
-    .target { color: var(--accent); font-size: 12pt; font-weight: 700; }
-    .layout { display: grid; grid-template-columns: minmax(0, 32%) minmax(0, 1fr); gap: 8mm; }
-    aside { background: var(--tint); padding: 4mm; }
-    section { margin: 0 0 4mm; }
-    h2 { margin: 0 0 2mm; color: var(--accent); font-size: 12pt; break-after: avoid; }
-    h3 { margin: 2.5mm 0 .7mm; font-size: 10.4pt; break-after: avoid; }
+
+    html {
+      -webkit-print-color-adjust: exact;
+      print-color-adjust: exact;
+    }
+
+    body {
+      margin: 0;
+      color: var(--ink);
+      font-family: Arial, "Helvetica Neue", Helvetica, sans-serif;
+      font-size: 9.8pt;
+      line-height: 1.38;
+    }
+
+    p, li { orphans: 2; widows: 2; }
+
+    .page {
+      display: flex;
+      flex-direction: column;
+      width: var(--page-w);
+      height: var(--page-h);
+      padding: var(--page-pad);
+      background: #fff;
+      break-after: page;
+    }
+    .page:last-of-type { break-after: auto; }
+
+    /* On screen, show the sheets against a backdrop so what you see is the PDF. */
+    @media screen {
+      body { background: #e9ecef; }
+      .page { margin: 8mm auto; box-shadow: 0 1px 6px rgba(0,0,0,.25); }
+    }
+
+    header {
+      flex: 0 0 auto;
+      margin-bottom: 5mm;
+      padding-bottom: 3mm;
+      border-bottom: 1.2pt solid var(--accent);
+    }
+    h1 { margin: 0; font-size: 24pt; line-height: 1.05; letter-spacing: -0.3pt; }
+    .target {
+      margin-top: 1.2mm;
+      color: var(--accent);
+      font-size: 11.5pt;
+      font-weight: 700;
+      letter-spacing: .2pt;
+    }
+    .contact { margin-top: 2.2mm; color: var(--muted); }
+
+    /* The split fills whatever height the header leaves; the sidebar stretches
+       with it, so the tint always reaches the foot of the page. */
+    .split {
+      display: flex;
+      gap: var(--gap);
+      flex: 1 1 auto;
+      min-height: 0;
+    }
+    .sidebar {
+      flex: 0 0 var(--side-w);
+      width: var(--side-w);
+      padding: 4mm;
+      background: var(--tint);
+      border-top: 1.2pt solid var(--accent);
+    }
+    .column { flex: 1 1 auto; min-width: 0; }
+
+    .sidebar section { margin-top: 4.5mm; }
+    .sidebar section:first-child { margin-top: 0; }
+    .sidebar h2 { font-size: 10.5pt; }
+
+    section { margin-top: 4.6mm; }
+    .column > section:first-child,
+    .page > section:first-child { margin-top: 0; }
+
+    h2 {
+      margin: 0 0 2.2mm;
+      padding-bottom: 1mm;
+      border-bottom: .6pt solid var(--rule);
+      color: var(--accent);
+      font-size: 11.5pt;
+      line-height: 1.2;
+      letter-spacing: .2pt;
+      break-after: avoid;
+    }
+
+    h3 { margin: 3.4mm 0 .6mm; font-size: 10.3pt; break-after: avoid; }
+
     p { margin: 0 0 1.7mm; }
-    ul { margin: 1mm 0 0; padding-left: 4.2mm; }
-    li { margin-bottom: .9mm; }
-    .contact { color: var(--muted); }
-    .meta { color: var(--muted); }
-    .entry-short { break-inside: avoid; }
+
+    ul { margin: 1.2mm 0 0; padding-left: 4.4mm; break-before: avoid; }
+    li { margin: 0 0 1mm; }
+
+    /* Sidebar lists: no markers, so long entries stay readable in a narrow column. */
+    .stack { list-style: none; padding: 0; margin: 0; }
+    .stack li { margin: 0 0 1.6mm; }
+
+    .meta {
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: space-between;
+      gap: .8mm 4mm;
+      color: var(--muted);
+      break-after: avoid;
+    }
+
+    .entry { margin-bottom: 1mm; }
+    .entry-compact { break-inside: avoid; }
+
+    .cap { margin-bottom: 1.8mm; }
+    .cap-label { display: block; font-weight: 700; }
+    .cap-list { display: block; }
+
+    .credential { margin-bottom: 1.6mm; }
+    .credential .issuer { color: var(--muted); }
+
     a { color: inherit; text-decoration: none; }
   </style>
 </head>
 <body>
-  <header><h1>Candidate Name</h1><div class="target">Target Role</div></header>
-  <div class="layout">
-    <aside>
-      <section><h2>Contact</h2><p class="contact">Auckland, New Zealand<br>email@example.com<br>+64 XX XXX XXXX<br>LinkedIn</p></section>
-      <section><h2>Skills</h2><p><strong>Category</strong><br>Skill · Skill · Skill</p></section>
-      <section><h2>Education</h2><p><strong>Qualification</strong><br>Institution · Year</p></section>
-    </aside>
-    <main>
-      <section><h2>Professional Summary</h2><p>Replace with refined content.</p></section>
-      <section>
-        <h2>Professional Experience</h2>
-        <article class="entry-short"><h3>Job Title — Employer</h3><div class="meta">Month YYYY – Present</div>
-          <ul><li>Replace with evidence-based contribution.</li></ul></article>
-      </section>
-    </main>
+
+  <!-- PAGE 1: header across the full width, then the two-column split. -->
+  <div class="page">
+
+    <header>
+      <h1>Candidate Name</h1>
+      <div class="target">Target Role</div>
+      <div class="contact">
+        Auckland, New Zealand · email@example.com · +64 XX XXX XXXX · linkedin.com/in/example
+      </div>
+    </header>
+
+    <div class="split">
+
+      <aside class="sidebar">
+        <section>
+          <h2>Core Capabilities</h2>
+          <div class="cap"><span class="cap-label">Category</span><span class="cap-list">Skill · Skill · Skill</span></div>
+          <div class="cap"><span class="cap-label">Category</span><span class="cap-list">Skill · Skill · Skill</span></div>
+          <div class="cap"><span class="cap-label">Ways of working</span><span class="cap-list">Capability · Capability</span></div>
+        </section>
+        <section>
+          <h2>Education</h2>
+          <div class="credential">
+            <strong>Qualification</strong><br>Institution <span class="issuer">· Year</span>
+          </div>
+        </section>
+        <section>
+          <h2>Certifications</h2>
+          <div class="credential">
+            Certification<br><span class="issuer">Issuer · Year</span>
+          </div>
+        </section>
+      </aside>
+
+      <main class="column">
+
+        <section>
+          <h2>Professional Summary</h2>
+          <p>Replace with the refined summary. Lead with professional identity and the
+          strongest relevant capability, then scope and delivery context.</p>
+        </section>
+
+        <section>
+          <h2>Professional Experience</h2>
+
+          <article class="entry">
+            <h3>Job Title — Employer</h3>
+            <div class="meta"><span>Location</span><span>Month YYYY – Present</span></div>
+            <ul>
+              <li>Action, scope, and verified outcome or purpose.</li>
+              <li>Action, collaboration context, and verified outcome or purpose.</li>
+              <li>Action and responsibility without invented metrics.</li>
+            </ul>
+          </article>
+
+        </section>
+
+      </main>
+
+    </div>
   </div>
+
+  <!-- PAGE 2: single column at the full 182mm. Delete this page if unused. -->
+  <div class="page">
+
+    <section>
+      <h2>Professional Experience (continued)</h2>
+
+      <article class="entry">
+        <h3>Earlier Job Title — Employer</h3>
+        <div class="meta"><span>Location</span><span>Month YYYY – Month YYYY</span></div>
+        <ul>
+          <li>Relevant contribution.</li>
+          <li>Relevant contribution.</li>
+        </ul>
+      </article>
+
+    </section>
+
+    <section>
+      <h2>Selected Projects</h2>
+      <article class="entry entry-compact">
+        <h3>Project Name</h3>
+        <ul>
+          <li>Problem, contribution, technology where supported, and outcome.</li>
+        </ul>
+      </article>
+    </section>
+
+  </div>
+
 </body>
 </html>
-
