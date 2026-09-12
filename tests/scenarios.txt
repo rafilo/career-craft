@@ -1,0 +1,11 @@
+# Behavioural test scenarios, one per line: name | allowed-tools | prompt
+#
+# Blank lines and lines starting with # are ignored. Keep prompts on one line.
+# These are the scenarios from tests/fixtures/poor-resume-evaluation-guide.md,
+# which also supplies the pass criteria the judge uses.
+
+audit | Read,Glob,Grep | /audit-resume @tests/fixtures/poor-resume.md
+personal-statement | Read,Glob,Grep | /refine-personal-statement @tests/fixtures/poor-resume.md — Target role: Senior Full Stack Developer
+coach-experience | Read,Glob,Grep | /coach-experience-writing @tests/fixtures/poor-resume.md — Focus on the KiwiCloud Solutions role.
+refine-experience | Read,Glob,Grep | /refine-experience @tests/fixtures/poor-resume.md — Focus on the BrightLane Systems role.
+restructure | Read,Glob,Grep | /restructure-resume @tests/fixtures/poor-resume.md — Target role: Senior Full Stack Developer

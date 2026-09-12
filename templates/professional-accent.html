@@ -4,48 +4,205 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>Candidate Name — Resume</title>
+  <!--
+    Professional Accent — one column, restrained warm accent, Georgia headings over
+    an Arial body. Suitable for technology, finance, product, and professional
+    services. Still parses cleanly: no sidebar, no floats, no tables.
+
+    Accent #A87818 on white is the verified-contrast value from
+    references/layout-recipes.md. The tint #F7F0DE is used behind small labels only,
+    never behind body text.
+
+    Markup contract shared by all three templates:
+      header > h1 + .target + .contact
+      .entry > h3 + .meta(span, span) + ul
+      .cap   > .cap-label + .cap-list
+  -->
   <style>
-    :root { --ink: #292929; --muted: #5d5d5d; --accent: #9b711b; --tint: #f7f0de; }
-    @page { size: A4; margin: 14mm 15mm; }
+    :root {
+      --ink: #26282b;
+      --muted: #5b5f65;
+      --accent: #A87818;
+      --accent-deep: #8a6114;   /* headings: darker for contrast at small sizes */
+      --tint: #F7F0DE;
+      --rule: #ddd3bd;
+    }
+
+    @page { size: A4; margin: 15mm; }
+
     * { box-sizing: border-box; }
-    body { margin: 0; color: var(--ink); font-family: Arial, Helvetica, sans-serif;
-      font-size: 10pt; line-height: 1.36; }
-    header { border-left: 4mm solid var(--accent); padding: 2mm 0 2.5mm 5mm; margin-bottom: 5mm; }
-    h1 { margin: 0; font-size: 25pt; line-height: 1.05; }
-    .target { color: var(--accent); font-size: 12.5pt; font-weight: 700; margin-top: 1mm; }
-    .contact { color: var(--muted); margin-top: 2mm; }
-    section { margin-top: 4mm; }
-    h2 { display: flex; align-items: center; gap: 3mm; margin: 0 0 2mm;
-      color: var(--accent); font-size: 12.5pt; break-after: avoid; }
-    h2::after { content: ""; height: .6pt; background: var(--accent); flex: 1; }
-    h3 { margin: 2.6mm 0 .7mm; font-size: 10.7pt; break-after: avoid; }
-    p { margin: 0 0 1.7mm; }
-    ul { margin: 1mm 0 0; padding-left: 4.5mm; }
-    li { margin-bottom: 1mm; }
-    .meta { display: flex; justify-content: space-between; gap: 5mm; color: var(--muted); }
-    .skills { padding: 2.5mm 3mm; background: var(--tint); }
-    .entry-short { break-inside: avoid; }
+
+    /* Tints must survive Print → Save as PDF, where Chrome disables background
+       graphics by default. Without this the skills band prints blank. */
+    html {
+      -webkit-print-color-adjust: exact;
+      print-color-adjust: exact;
+    }
+
+    body {
+      margin: 0;
+      color: var(--ink);
+      font-family: Arial, "Helvetica Neue", Helvetica, sans-serif;
+      font-size: 10.1pt;
+      line-height: 1.4;
+    }
+
+    p, li { orphans: 2; widows: 2; }
+
+    header {
+      border-left: 3.4mm solid var(--accent);
+      padding: 1mm 0 1.6mm 5mm;
+      margin-bottom: 6mm;
+    }
+    h1 {
+      margin: 0;
+      font-family: Georgia, "Times New Roman", serif;
+      font-size: 25pt;
+      font-weight: 700;
+      line-height: 1.06;
+      letter-spacing: -0.3pt;
+    }
+    .target {
+      margin-top: 1.2mm;
+      color: var(--accent-deep);
+      font-size: 12pt;
+      font-weight: 700;
+      letter-spacing: .2pt;
+    }
+    .contact { margin-top: 2.2mm; color: var(--muted); }
+
+    section { margin-top: 5mm; }
+
+    /* Accent rule drawn with a border on a child span, not a flex pseudo-element:
+       ::after content is skipped by some PDF and ATS text extractors. */
+    h2 {
+      margin: 0 0 2.6mm;
+      padding-bottom: 1.2mm;
+      border-bottom: .7pt solid var(--accent);
+      color: var(--accent-deep);
+      font-family: Georgia, "Times New Roman", serif;
+      font-size: 12.5pt;
+      line-height: 1.2;
+      break-after: avoid;
+    }
+
+    h3 {
+      margin: 3.4mm 0 .6mm;
+      font-size: 10.7pt;
+      font-weight: 700;
+      break-after: avoid;
+    }
+
+    p { margin: 0 0 1.8mm; }
+
+    ul { margin: 1.2mm 0 0; padding-left: 4.8mm; break-before: avoid; }
+    li { margin: 0 0 1.1mm; }
+
+    .meta {
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: space-between;
+      gap: 1mm 5mm;
+      color: var(--muted);
+      break-after: avoid;
+    }
+
+    .entry { margin-bottom: 1mm; }
+    .entry-compact { break-inside: avoid; }
+
+    .skills {
+      padding: 3mm 3.4mm;
+      background: var(--tint);
+      border-left: 1mm solid var(--accent);
+      break-inside: avoid;
+    }
+    .cap { display: flex; flex-wrap: wrap; gap: 0 2mm; margin-bottom: 1.4mm; }
+    .cap:last-child { margin-bottom: 0; }
+    .cap-label { font-weight: 700; flex: 0 0 auto; }
+    .cap-list { flex: 1 1 60%; min-width: 60%; }
+
+    .credential { margin-bottom: 1.4mm; }
+    .credential .issuer { color: var(--muted); }
+
     a { color: inherit; text-decoration: none; }
   </style>
 </head>
 <body>
+
   <header>
     <h1>Candidate Name</h1>
     <div class="target">Target Role</div>
-    <div class="contact">Auckland, New Zealand · email@example.com · +64 XX XXX XXXX · LinkedIn</div>
+    <div class="contact">
+      Auckland, New Zealand · email@example.com · +64 XX XXX XXXX · linkedin.com/in/example
+    </div>
   </header>
+
   <main>
-    <section><h2>Professional Summary</h2><p>Replace with refined content.</p></section>
-    <section><h2>Core Capabilities</h2><div class="skills"><strong>Category:</strong> Skill, Skill, Skill</div></section>
+
+    <section>
+      <h2>Professional Summary</h2>
+      <p>Replace with the refined summary. Lead with professional identity and the
+      strongest relevant capability, then scope and delivery context.</p>
+    </section>
+
+    <section>
+      <h2>Core Capabilities</h2>
+      <div class="skills">
+        <div class="cap"><span class="cap-label">Category:</span><span class="cap-list">Skill, Skill, Skill</span></div>
+        <div class="cap"><span class="cap-label">Category:</span><span class="cap-list">Skill, Skill, Skill</span></div>
+        <div class="cap"><span class="cap-label">Ways of working:</span><span class="cap-list">Capability demonstrated in experience, Capability</span></div>
+      </div>
+    </section>
+
     <section>
       <h2>Professional Experience</h2>
-      <article class="entry-short">
+
+      <article class="entry">
         <h3>Job Title — Employer</h3>
         <div class="meta"><span>Location</span><span>Month YYYY – Present</span></div>
-        <ul><li>Replace with evidence-based contribution.</li></ul>
+        <ul>
+          <li>Action, scope, and verified outcome or purpose.</li>
+          <li>Action, collaboration context, and verified outcome or purpose.</li>
+          <li>Action and responsibility without invented metrics.</li>
+        </ul>
+      </article>
+
+      <article class="entry">
+        <h3>Earlier Job Title — Employer</h3>
+        <div class="meta"><span>Location</span><span>Month YYYY – Month YYYY</span></div>
+        <ul>
+          <li>Relevant contribution.</li>
+          <li>Relevant contribution.</li>
+        </ul>
+      </article>
+
+    </section>
+
+    <section>
+      <h2>Selected Projects</h2>
+      <article class="entry entry-compact">
+        <h3>Project Name</h3>
+        <ul>
+          <li>Problem, contribution, technology where supported, and outcome.</li>
+        </ul>
       </article>
     </section>
+
+    <section>
+      <h2>Education</h2>
+      <div class="credential">
+        <strong>Qualification</strong> — Institution <span class="issuer">· Year</span>
+      </div>
+    </section>
+
+    <section>
+      <h2>Certifications</h2>
+      <div class="credential">
+        Certification — Issuer <span class="issuer">· Year</span>
+      </div>
+    </section>
+
   </main>
+
 </body>
 </html>
-

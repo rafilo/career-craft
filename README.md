@@ -151,7 +151,27 @@ references/           Detailed checklists and layout recipes
 templates/            Starter resume and HTML/CSS templates
 examples/             Before-and-after examples
 scripts/              Project validation
+tests/                Structural and behavioural tests
 workspace/resumes/    Imported Markdown resumes (git-ignored)
 ```
 
-Run `bash scripts/validate.sh` after editing the project.
+## Testing
+
+The commands are prompts, so testing splits into two tiers — see
+[`tests/README.md`](tests/README.md) for the full explanation.
+
+```bash
+bash tests/run-tests.sh              # structural: fast, deterministic, free
+bash tests/run-behaviour.sh --judge  # behavioural: runs the commands, grades them
+```
+
+`tests/run-tests.sh` checks skill frontmatter, that every referenced file exists,
+that the README commands table matches the skills on disk, and that candidate
+material stays git-ignored. Run it after editing the project; it wraps
+`scripts/validate.sh`, so there is no need to run that separately.
+
+`tests/run-behaviour.sh` runs the coaching commands headlessly against
+`tests/fixtures/poor-resume.md` and grades the responses against the pass criteria
+in `tests/fixtures/poor-resume-evaluation-guide.md` — mainly to catch the tool
+regressing into a rewrite-first assistant. It costs tokens and takes about a minute
+per scenario, so it is not a per-commit check.
